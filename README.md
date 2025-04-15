@@ -1,4 +1,4 @@
-# 🚍 Trascaribe-APP
+# 🚍 Transcaribe-APP
 
 Aplicación móvil y web desarrollada con Flutter para gestionar la tarjeta de transporte del sistema **Transcaribe** en Cartagena. Permite a los usuarios consultar su saldo, recargar la tarjeta, revisar el historial de transacciones y más.
 
