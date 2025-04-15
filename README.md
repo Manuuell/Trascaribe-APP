@@ -69,7 +69,7 @@ git push origin main
 
 Desarrollador principal: **Manuell -- Angelsistemas7**  
 GitHub: [@Manuuell](https://github.com/Manuuell)
-
+GitHub: [@Angelsistemas7](https://github.com/Angelsistemas7)
 ---
 
 
