@@ -28,8 +28,9 @@ Aplicación móvil y web desarrollada con Flutter para gestionar la tarjeta de t
 1. Clona el repositorio:
 
 ```bash
-git clone https://github.com/Manuuell/Trascaribe-APP.git
+mkdir Trascaribe-APP
 cd Trascaribe-APP
+git clone https://github.com/Manuuell/Trascaribe-APP.git
 ```
 
 2. Instala las dependencias de Flutter:
