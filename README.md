@@ -55,12 +55,18 @@ git commit -m "Descripción de los cambios"
 git push origin main
 ```
 
+5. Sincronizar Repositorio:
+
+```bash
+git pull origin main 
+```
+
 ---
 
 ## 📌 Estado del Proyecto
 
 🚧 *En desarrollo* – Se encuentra en fase inicial. Las funcionalidades se irán integrando progresivamente.  
-📆 Última actualización: `16/04/2025`
+📆 Última actualización: `17/04/2025`
 
 ---
 
@@ -68,9 +74,10 @@ git push origin main
 
 ## 📧 Contacto
 
-Desarrollador principal: **Manuell -- Angelsistemas7**  
+Desarrollador principal: **Manuell -- Angelsistemas7 -- jerdiaz**  
 GitHub: [@Manuuell](https://github.com/Manuuell)
 GitHub: [@Angelsistemas7](https://github.com/Angelsistemas7)
+GitHub: [@jerdiaz](https://github.com/jerdiaz)
 ---
 
 
