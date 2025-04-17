@@ -319,18 +319,36 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
 }
 
 class ScannerPage extends StatelessWidget {
+  final MobileScannerController controller = MobileScannerController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: Text('Escanear tarjeta'), backgroundColor: Colors.orange),
+      appBar: AppBar(
+        title: Text('Escanear tarjeta'),
+        backgroundColor: Colors.orange,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.flash_on),
+            onPressed: () {
+              controller.toggleTorch();
+            },
+          )
+        ],
+      ),
       body: MobileScanner(
-        controller: MobileScannerController(facing: CameraFacing.back),
+        controller: controller,
         onDetect: (capture) {
           final code = capture.barcodes.first.rawValue;
-          if (code != null) Navigator.pop(context, code);
+
+          if (code != null) {
+            controller.stop(); // ✅ Detiene la cámara inmediatamente
+            Navigator.pop(context, code); // ✅ Cierra y devuelve el valor
+          }
         },
       ),
     );
   }
 }
+
