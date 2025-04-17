@@ -1,122 +1,206 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1) Status bar transparente + iconos claros
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
+
+  runApp(TranscaribeApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
+class TranscaribeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Transcaribe',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: GoogleFonts.openSansTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MenuPrincipal(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+class MenuButton {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const MenuButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class MenuPrincipal extends StatefulWidget {
+  @override
+  _MenuPrincipalState createState() => _MenuPrincipalState();
+}
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class _MenuPrincipalState extends State<MenuPrincipal> {
+  int _currentIndex = 0;
+
+  final List<MenuButton> _botones = const [
+    MenuButton(icon: Icons.place,                label: 'Planear ruta',        color: Color(0xFF4AC5EA)),
+    MenuButton(icon: Icons.account_balance_wallet, label: 'Consultar saldo',    color: Color(0xFFFFB347)),
+    MenuButton(icon: Icons.warning_amber_rounded,  label: 'Rutas',              color: Color(0xFFEF5B5B)),
+    MenuButton(icon: Icons.announcement_rounded,   label: 'Avisos',             color: Color(0xFF6C63FF)),
+    MenuButton(icon: Icons.support_agent,          label: 'Atención al usuario',color: Color(0xFF8BC34A)),
+    MenuButton(icon: Icons.public,                 label: 'Portal web',         color: Color(0xFF00BFA5)),
+  ];
+
+  final List<Map<String, dynamic>> _tabs = const [
+    {'icon': Icons.home,                   'label': 'Inicio'},
+    {'icon': Icons.account_balance_wallet, 'label': 'Saldo'},
+    {'icon': Icons.list_alt,               'label': 'Reportar'},
+    {'icon': Icons.settings,               'label': 'Ajustes'},
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // Sacamos el padding superior (status bar) para compensarlo manualmente
+    final double topPadding = MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      // 2) Permitimos dibujar bajo la status bar
+      extendBodyBehindAppBar: true,
+
+      body: Stack(
+        children: [
+          // Patrón de fondo en toda la pantalla
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/pattern.png',
+              repeat: ImageRepeat.repeat,
+              fit: BoxFit.cover,
             ),
-          ],
+          ),
+
+          // Contenido desplazado hacia abajo topPadding px
+          Padding(
+            padding: EdgeInsets.only(top: topPadding),
+            child: Column(
+              children: [
+                // Espacio extra y logo centrado
+                const SizedBox(height: 16),
+                Image.asset(
+                  'assets/images/logo_trasca.png',
+                  height: 120,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 24),
+
+                // Grid de botones
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: GridView.builder(
+                      itemCount: _botones.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 24,
+                        crossAxisSpacing: 24,
+                        childAspectRatio: 1,
+                      ),
+                      itemBuilder: (ctx, i) {
+                        final btn = _botones[i];
+                        return GestureDetector(
+                          onTap: () => print('Abrir ${btn.label}'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: btn.color,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: Colors.black45, width: 2),
+                              boxShadow: [
+                                BoxShadow(color: Colors.black26, offset: Offset(3,3), blurRadius: 6),
+                                BoxShadow(color: Colors.white24, offset: Offset(-2,-2), blurRadius: 6),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(btn.icon, size: 40, color: Colors.white),
+                                const SizedBox(height: 12),
+                                Text(
+                                  btn.label,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+
+      // Barra de navegación inferior personalizada
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFF007E8C), width: 4)),
+        ),
+        child: Row(
+          children: List.generate(_tabs.length, (index) {
+            final item = _tabs[index];
+            final selected = index == _currentIndex;
+            return Expanded(
+              child: InkWell(
+                onTap: () => setState(() => _currentIndex = index),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (selected)
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFFFB347),
+                          ),
+                          padding: EdgeInsets.all(8),
+                          child: Icon(item['icon'], size: 24, color: Colors.white),
+                        )
+                      else
+                        Icon(item['icon'], size: 24, color: Color(0xFF007E8C)),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['label'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: selected ? Color(0xFFFFB347) : Colors.grey,
+                          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
