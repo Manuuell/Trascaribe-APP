@@ -1,5 +1,5 @@
 name: trascaribeapp
-description: "A new Flutter project."
+description: "Aplicación de consulta y navegación para Transcaribe"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.8
   google_fonts: ^6.0.0
+  mobile_scanner: ^3.2.0
 
 dev_dependencies:
   flutter_test:
