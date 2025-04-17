@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
@@ -288,6 +289,9 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
                                   ),
                                 ),
                                 keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly, // <-- Esto permite solo números
+                                ],
                               ),
                               const SizedBox(height: 12),
                               ElevatedButton(
