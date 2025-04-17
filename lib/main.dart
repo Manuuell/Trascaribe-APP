@@ -206,6 +206,7 @@ class ConsultaSaldo extends StatefulWidget {
 
 class _ConsultaSaldoState extends State<ConsultaSaldo> {
   final _ctr = TextEditingController();
+  bool _mostrarSaldo = false;
 
   void _showError() {
     showDialog(
@@ -213,24 +214,21 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
       builder: (_) => AlertDialog(
         title: Text('Error'),
         content: Text('Por favor, ingresa el número de tarjeta.'),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('Cerrar'))],
-      ),
-    );
-  }
-
-  void _showSaldo() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Saldo'),
-        content: Text('\$12.350 COP (Simulado)'),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('Cerrar'))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cerrar'),
+          )
+        ],
       ),
     );
   }
 
   Future<void> _scan() async {
-    final code = await Navigator.push(context, MaterialPageRoute(builder: (_) => ScannerPage()));
+    final code = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ScannerPage()),
+    );
     if (code is String) setState(() => _ctr.text = code);
   }
 
@@ -259,53 +257,121 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
                     children: [
                       Image.asset('assets/images/logo_trasca.png', height: 100),
                       const SizedBox(height: 24),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
-                          ],
-                        ),
-                        padding: EdgeInsets.all(24),
-                        child: Column(
-                          children: [
-                            Text('Consulta tu saldo',
-                                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFD84315))),
-                            const SizedBox(height: 12),
-                            const Text('Ingresa o escanea el número de tu tarjeta'),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _ctr,
-                              decoration: InputDecoration(
-                                hintText: 'Número de tarjeta',
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                      Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        color: Colors.white,
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Consulta tu saldo',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFD84315),
+                                ),
                               ),
-                              keyboardType: TextInputType.number,
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: _scan,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF4AC5EA),
-                                shape: StadiumBorder(),
-                                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                              const SizedBox(height: 12),
+                              const Text('Ingresa o escanea el número de tu tarjeta'),
+                              const SizedBox(height: 16),
+                              TextField(
+                                controller: _ctr,
+                                decoration: InputDecoration(
+                                  hintText: 'Número de tarjeta',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
                               ),
-                              child: Text('Escanear código'),
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: _ctr.text.isEmpty ? _showError : _showSaldo,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFFF6F00),
-                                shape: StadiumBorder(),
-                                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                              const SizedBox(height: 12),
+                              ElevatedButton(
+                                onPressed: _scan,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF4AC5EA),
+                                  shape: StadiumBorder(),
+                                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                                ),
+                                child: Text('Escanear código'),
                               ),
-                              child: Text('Consultar'),
-                            ),
-                          ],
+                              const SizedBox(height: 12),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_ctr.text.isEmpty) {
+                                    _showError();
+                                  } else {
+                                    setState(() => _mostrarSaldo = true);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFFF6F00),
+                                  shape: StadiumBorder(),
+                                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                                ),
+                                child: Text('Consultar'),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      if (_mostrarSaldo)
+                        Container(
+                          width: double.infinity,
+                          constraints: BoxConstraints(minHeight: 160),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFE3600F),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                          margin: EdgeInsets.only(top: 16, bottom: 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/logo_trasca.png',
+                                    height: 60,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    '',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 32),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Saldo disponible',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$12.350',
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -341,14 +407,12 @@ class ScannerPage extends StatelessWidget {
         controller: controller,
         onDetect: (capture) {
           final code = capture.barcodes.first.rawValue;
-
           if (code != null) {
-            controller.stop(); // ✅ Detiene la cámara inmediatamente
-            Navigator.pop(context, code); // ✅ Cierra y devuelve el valor
+            controller.stop();
+            Navigator.pop(context, code);
           }
         },
       ),
     );
   }
 }
-
