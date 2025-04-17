@@ -59,7 +59,7 @@ git push origin main
 ## 📌 Estado del Proyecto
 
 🚧 *En desarrollo* – Se encuentra en fase inicial. Las funcionalidades se irán integrando progresivamente.  
-📆 Última actualización: `14/04/2025`
+📆 Última actualización: `16/04/2025`
 
 ---
 
