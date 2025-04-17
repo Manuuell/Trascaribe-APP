@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
@@ -199,6 +200,7 @@ class MenuGrid extends StatelessWidget {
   }
 }
 
+
 class ConsultaSaldo extends StatefulWidget {
   @override
   _ConsultaSaldoState createState() => _ConsultaSaldoState();
@@ -235,6 +237,7 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -320,13 +323,12 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
                       if (_mostrarSaldo)
                         Container(
                           width: double.infinity,
-                          constraints: BoxConstraints(minHeight: 160),
                           decoration: BoxDecoration(
                             color: Color(0xFFE3600F),
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                          margin: EdgeInsets.only(top: 16, bottom: 32),
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                          margin: EdgeInsets.only(top: 24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -334,11 +336,20 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
                                 children: [
                                   Image.asset(
                                     'assets/images/logo_trasca.png',
-                                    height: 60,
+                                    height: 40,
                                   ),
-                                  const SizedBox(width: 16),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Saldo disponible',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                                   Text(
-                                    '',
+                                    '\$12.350',
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -347,27 +358,25 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 32),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Saldo disponible',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => RecargaPage()),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white.withOpacity(0.2),
+                                    foregroundColor: Colors.white,
+                                    shape: StadiumBorder(),
+                                    padding: EdgeInsets.symmetric(vertical: 14),
+                                    elevation: 0,
                                   ),
-                                  Text(
-                                    '\$12.350',
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
+                                  child: Text('Recargar'),
+                                ),
                               ),
                             ],
                           ),
@@ -416,3 +425,293 @@ class ScannerPage extends StatelessWidget {
     );
   }
 }
+
+
+
+class RecargaPage extends StatelessWidget {
+  const RecargaPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/pattern.png'),
+          fit: BoxFit.cover,
+          alignment: Alignment.topCenter,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(height: 32),
+                  Center(
+                    child: Text(
+                      'Recarga Saldo',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        _MetodoRecarga(icon: Icons.account_balance, label: 'Usando PSE'),
+                        SizedBox(width: 32),
+                        _MetodoRecarga(icon: Icons.attach_money, label: 'En efectivo'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFE3600F),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                      ],
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset('assets/images/logo_trasca.png', height: 40, color: Colors.white),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Recarga tu tarjeta en\ncuestión de segundos',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '¡Recarga tu tarjeta y sigue\nviajando con nosotros!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => RecargaPseInternaPage()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF007E8C),
+                              shape: StadiumBorder(),
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: Text(
+                              'Recargar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetodoRecarga extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetodoRecarga({
+    required this.icon,
+    required this.label,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (label == 'Usando PSE') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => RecargaPseInternaPage()),
+          );
+        }
+        // Puedes agregar más condiciones para otros métodos si lo necesitas
+      },
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(color: Colors.white, width: 3),
+              boxShadow: [
+                BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2)),
+              ],
+            ),
+            padding: EdgeInsets.all(20),
+            child: Icon(icon, size: 30, color: Color(0xFF007E8C)),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(fontSize: 14, color: Colors.black87),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class RecargaPseInternaPage extends StatefulWidget {
+  @override
+  _RecargaPseInternaPageState createState() => _RecargaPseInternaPageState();
+}
+
+class _RecargaPseInternaPageState extends State<RecargaPseInternaPage> {
+  final TextEditingController _valorController = TextEditingController();
+  final TextEditingController _correoController = TextEditingController(text: 'ejemplo@correo.com');
+  final List<String> _bancos = [
+    'Nequi',
+    'Bancolombia',
+    'Davivienda',
+    'Banco de Bogotá',
+    'Banco AV Villas',
+    'BBVA',
+    'Banco de Occidente',
+    'Banco Popular',
+    'Banco Agrario',
+    'Scotiabank Colpatria'
+  ];
+
+  String? _bancoSeleccionado;
+
+  bool get _formularioValido =>
+      _valorController.text.isNotEmpty &&
+          double.tryParse(_valorController.text) != null &&
+          _bancoSeleccionado != null &&
+          _correoController.text.contains('@');
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Ingresa los detalles del depósito'),
+        backgroundColor: Color(0xFFE3600F),
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Depositarás mediante PSE.', style: TextStyle(color: Colors.grey[700])),
+            const SizedBox(height: 24),
+
+            // Valor
+            Row(
+              children: [
+                Text('\$', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: _valorController,
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(fontSize: 28),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: '0,00',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                )
+              ],
+            ),
+            Divider(),
+
+            // Selector PSE
+            ListTile(
+              leading: Image.asset('assets/images/logopse.png', width: 36),
+              title: Text('PSE'),
+              subtitle: Text('Selecciona tu banco y correo'),
+              trailing: Icon(Icons.expand_more, color: Color(0xFFE3600F)),
+            ),
+            const SizedBox(height: 8),
+
+            // Banco
+            Text('Banco', style: TextStyle(fontWeight: FontWeight.bold)),
+            DropdownButton<String>(
+              isExpanded: true,
+              value: _bancoSeleccionado,
+              hint: Text('Selecciona un banco'),
+              onChanged: (value) => setState(() => _bancoSeleccionado = value),
+              items: _bancos.map((banco) => DropdownMenuItem(value: banco, child: Text(banco))).toList(),
+            ),
+            const SizedBox(height: 16),
+
+            // Correo
+            Text('Correo', style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(
+              controller: _correoController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(hintText: 'ejemplo@correo.com'),
+              onChanged: (_) => setState(() {}),
+            ),
+            Spacer(),
+
+            // Botón continuar
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _formularioValido
+                    ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Datos listos para enviar')),
+                  );
+                }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFE3600F),
+                  shape: StadiumBorder(),
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Text('Continuar'),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
