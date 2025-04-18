@@ -38,11 +38,14 @@ class MenuPrincipal extends StatefulWidget {
 class _MenuPrincipalState extends State<MenuPrincipal> {
   int _currentIndex = 0;
 
+  /// Lista de pestañas del bottom navigation bar
   List<Map<String, dynamic>> get _tabs => [
     {
       'icon': Icons.home,
       'label': 'Inicio',
-      'widget': MenuGrid(onTabSelected: (i) => setState(() => _currentIndex = i)),
+      'widget': MenuGrid(
+        onTabSelected: (i) => setState(() => _currentIndex = i),
+      ),
     },
     {
       'icon': Icons.account_balance_wallet,
@@ -57,7 +60,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     {
       'icon': Icons.settings,
       'label': 'Ajustes',
-      'widget': Center(child: Text('Sección ajustes')),
+      'widget': AjustesPage(),  // <-- Aquí enlazamos la pantalla de Ajustes
     },
   ];
 
@@ -68,6 +71,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
+          // patrón de fondo
           Positioned.fill(
             child: Image.asset(
               'assets/images/pattern.png',
@@ -76,9 +80,10 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
               alignment: Alignment.topLeft,
             ),
           ),
+          // Contenido de la pestaña activa
           Padding(
             padding: EdgeInsets.only(top: topPadding),
-            child: _tabs[_currentIndex]['widget'],
+            child: _tabs[_currentIndex]['widget'] as Widget,
           ),
         ],
       ),
@@ -90,33 +95,42 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
         child: Row(
           children: List.generate(_tabs.length, (index) {
             final item = _tabs[index];
-            final sel = index == _currentIndex;
+            final selected = index == _currentIndex;
             return Expanded(
               child: InkWell(
                 onTap: () => setState(() => _currentIndex = index),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (sel)
+                      if (selected)
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Color(0xFFFFB347),
                           ),
                           padding: EdgeInsets.all(8),
-                          child: Icon(item['icon'] as IconData, size: 24, color: Colors.white),
+                          child: Icon(
+                            item['icon'] as IconData,
+                            size: 24,
+                            color: Colors.white,
+                          ),
                         )
                       else
-                        Icon(item['icon'] as IconData, size: 24, color: Color(0xFF007E8C)),
+                        Icon(
+                          item['icon'] as IconData,
+                          size: 24,
+                          color: Color(0xFF007E8C),
+                        ),
                       const SizedBox(height: 4),
                       Text(
                         item['label'] as String,
                         style: TextStyle(
                           fontSize: 12,
-                          color: sel ? Color(0xFFFFB347) : Colors.grey,
-                          fontWeight: sel ? FontWeight.w600 : FontWeight.normal,
+                          color: selected ? Color(0xFFFFB347) : Colors.grey,
+                          fontWeight:
+                          selected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -130,6 +144,7 @@ class _MenuPrincipalState extends State<MenuPrincipal> {
     );
   }
 }
+
 
 class MenuGrid extends StatelessWidget {
   final Function(int)? onTabSelected;
@@ -719,3 +734,277 @@ class _RecargaPseInternaPageState extends State<RecargaPseInternaPage> {
 }
 
 
+class AjustesPage extends StatefulWidget {
+  @override
+  _AjustesPageState createState() => _AjustesPageState();
+}
+
+class _AjustesPageState extends State<AjustesPage> {
+  bool _notificaciones = true;
+  String _idioma = 'Español';
+  String _tema = 'Sistema';
+  final bool _logueado = false; // simula estado de sesión
+
+  @override
+  Widget build(BuildContext context) {
+    // Altura de la status bar
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    // Altura aproximada del header: paddings + altura de icon/text (≈24)
+    final headerHeight = statusBarHeight + 14 + 14 + 24;
+    // Queremos que el contenedor de login baje 16px desde el bottom curve
+    final loginOffset = headerHeight - 16;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          // Fondo de ondas
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/pattern.png',
+              repeat: ImageRepeat.repeat,
+              fit: BoxFit.none,
+              alignment: Alignment.topLeft,
+            ),
+          ),
+
+          // HEADER naranja, detrás de la status bar
+          Transform.translate(
+            offset: Offset(0, -statusBarHeight),
+            child: Container(
+              padding: EdgeInsets.only(
+                top: statusBarHeight + 14,
+                bottom: 14,
+                left: 16,
+                right: 16,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFF47216), Color(0xFFE3600F)],
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                children: [
+                  BackButton(color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Ajustes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Contenido principal
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Espacio dinámico para situar el login justo debajo de la curva
+                SizedBox(height: loginOffset),
+
+                // Contenedor de "Iniciar sesión"
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF007E8C),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: _logueado
+                      ? Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person,
+                            size: 28, color: Color(0xFF007E8C)),
+                      ),
+                      SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Michael',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold)),
+                          Text('michael@gmail.com',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 14)),
+                        ],
+                      ),
+                    ],
+                  )
+                      : Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: navegar a login
+                      },
+                      icon: Icon(Icons.login, color: Color(0xFF007E8C)),
+                      label: Text('Iniciar sesión',
+                          style: TextStyle(
+                              color: Color(0xFF007E8C),
+                              fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 24),
+                        elevation: 4,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Lista de opciones, con padding top para separarla del login
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Column(
+                      children: [
+                        _buildSwitchTile(
+                          icon: Icons.notifications,
+                          title: 'Notificaciones',
+                          value: _notificaciones,
+                          onChanged: (v) =>
+                              setState(() => _notificaciones = v),
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.language,
+                          title: 'Idioma',
+                          value: _idioma,
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.brightness_6,
+                          title: 'Tema',
+                          value: _tema,
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.privacy_tip,
+                          title: 'Privacidad',
+                          value: '',
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.lock,
+                          title: 'Seguridad',
+                          value: '',
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.help_outline,
+                          title: 'Centro de ayuda',
+                          value: '',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Logo pie
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/logo_trasca.png',
+                      height: 80,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required IconData icon,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Color(0xFF007E8C),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(title,
+                style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Color(0xFFE3600F),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionTile({
+    required IconData icon,
+    required String title,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Color(0xFF007E8C),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(title,
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+            if (value.isNotEmpty)
+              Text(value, style: TextStyle(color: Colors.white70)),
+            Icon(Icons.chevron_right, color: Colors.white70),
+          ],
+        ),
+      ),
+    );
+  }
+}
