@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 void main() {
@@ -38,103 +39,113 @@ class MenuPrincipal extends StatefulWidget {
 class _MenuPrincipalState extends State<MenuPrincipal> {
   int _currentIndex = 0;
 
-  List<Map<String, dynamic>> get _tabs => [
-    {
-      'icon': Icons.home,
-      'label': 'Inicio',
-      'widget': MenuGrid(onTabSelected: (i) => setState(() => _currentIndex = i)),
-    },
-    {
-      'icon': Icons.account_balance_wallet,
-      'label': 'Saldo',
-      'widget': ConsultaSaldo(),
-    },
-    {
-      'icon': Icons.list_alt,
-      'label': 'Reportar',
-      'widget': Center(child: Text('Sección reportar')),
-    },
-    {
-      'icon': Icons.settings,
-      'label': 'Ajustes',
-      'widget': Center(child: Text('Sección ajustes')),
-    },
-  ];
+  final _tabs = <Map<String, dynamic>>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs.addAll([
+      {
+        'icon': Icons.home,
+        'label': 'Inicio',
+        'widget': MenuGrid(onTabSelected: (i) => setState(() => _currentIndex = i)),
+      },
+      {
+        'icon': Icons.account_balance_wallet,
+        'label': 'Saldo',
+        'widget': ConsultaSaldo(),
+      },
+      {
+        'icon': Icons.list_alt,
+        'label': 'Reportar',
+        'widget': Center(child: Text('Sección reportar')),
+      },
+      {
+        'icon': Icons.settings,
+        'label': 'Ajustes',
+        'widget': AjustesPage(),
+      },
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/pattern.png',
-              repeat: ImageRepeat.repeat,
-              fit: BoxFit.none,
-              alignment: Alignment.topLeft,
+    return Stack(
+      children: [
+        // 1 sola vez: patrón de fondo repe­ti­do en toda la pantalla
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/pattern.png',
+            repeat: ImageRepeat.repeat,
+            fit: BoxFit.none,
+            alignment: Alignment.topLeft,
+          ),
+        ),
+
+        // Scaffold transparente sobre el pattern
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          extendBodyBehindAppBar: true,
+          extendBody: true,  // permite que el body se extienda debajo del bottomNav
+          body: Padding(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            child: _tabs[_currentIndex]['widget'] as Widget,
+          ),
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: Color(0xFF007E8C), width: 4)),
+            ),
+            child: Row(
+              children: List.generate(_tabs.length, (i) {
+                final item = _tabs[i];
+                final selected = i == _currentIndex;
+                return Expanded(
+                  child: InkWell(
+                    onTap: () => setState(() => _currentIndex = i),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (selected)
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFFFFB347),
+                              ),
+                              padding: EdgeInsets.all(8),
+                              child: Icon(item['icon'], size: 24, color: Colors.white),
+                            )
+                          else
+                            Icon(item['icon'], size: 24, color: Color(0xFF007E8C)),
+                          const SizedBox(height: 4),
+                          Text(
+                            item['label'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: selected ? Color(0xFFFFB347) : Colors.grey,
+                              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(top: topPadding),
-            child: _tabs[_currentIndex]['widget'],
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Color(0xFF007E8C), width: 4)),
         ),
-        child: Row(
-          children: List.generate(_tabs.length, (index) {
-            final item = _tabs[index];
-            final sel = index == _currentIndex;
-            return Expanded(
-              child: InkWell(
-                onTap: () => setState(() => _currentIndex = index),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (sel)
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0xFFFFB347),
-                          ),
-                          padding: EdgeInsets.all(8),
-                          child: Icon(item['icon'] as IconData, size: 24, color: Colors.white),
-                        )
-                      else
-                        Icon(item['icon'] as IconData, size: 24, color: Color(0xFF007E8C)),
-                      const SizedBox(height: 4),
-                      Text(
-                        item['label'] as String,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: sel ? Color(0xFFFFB347) : Colors.grey,
-                          fontWeight: sel ? FontWeight.w600 : FontWeight.normal,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
+      ],
     );
   }
 }
 
+
 class MenuGrid extends StatelessWidget {
   final Function(int)? onTabSelected;
   const MenuGrid({this.onTabSelected, Key? key}) : super(key: key);
-
   static const _botones = [
     {'icon': Icons.place, 'label': 'Planear ruta', 'color': Color(0xFF4AC5EA)},
     {'icon': Icons.account_balance_wallet, 'label': 'Consultar saldo', 'color': Color(0xFFFFB347)},
@@ -208,194 +219,248 @@ class ConsultaSaldo extends StatefulWidget {
 }
 
 class _ConsultaSaldoState extends State<ConsultaSaldo> {
-  final _ctr = TextEditingController();
-  bool _mostrarSaldo = false;
+  final TextEditingController _ctr = TextEditingController();
+  bool _loading = false;
+  String? _saldo;
+  String? _error;
 
-  void _showError() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Error'),
-        content: Text('Por favor, ingresa el número de tarjeta.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cerrar'),
-          )
-        ],
-      ),
+  Future<void> _consultar() async {
+    final num = _ctr.text.trim();
+    if (num.isEmpty) {
+      setState(() => _error = 'Ingresa un número de tarjeta.');
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+      _saldo = null;
+    });
+    final url = Uri.parse(
+      'https://recaudo.sondapay.com/recaudowsrest/producto/consultaTrx',
     );
+    final headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Accept': '*/*',
+      'Origin': 'https://transcaribe.gov.co',
+    };
+    final body = jsonEncode({
+      'nivelConsulta': 1,
+      'tipoConsulta': 2,
+      'numExterno': num,
+    });
+    try {
+      final resp = await http.post(url, headers: headers, body: body);
+      final data = jsonDecode(resp.body);
+      if (resp.statusCode == 200 && data['estado'] == 0) {
+        setState(() => _saldo = data['saldo']);
+      } else {
+        setState(() => _error = data['mensaje'] ?? 'Error desconocido');
+      }
+    } catch (e) {
+      setState(() => _error = 'Error de red: $e');
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   Future<void> _scan() async {
-    final code = await Navigator.push(
+    final code = await Navigator.push<String>(
       context,
       MaterialPageRoute(builder: (_) => ScannerPage()),
     );
-    if (code is String) setState(() => _ctr.text = code);
+    if (code != null) _ctr.text = code;
   }
 
   @override
   Widget build(BuildContext context) {
+    // NO Scaffold aquí: lo maneja MenuPrincipal y su Stack con el pattern
     final topPadding = MediaQuery.of(context).padding.top;
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/pattern.png',
-              repeat: ImageRepeat.repeat,
-              fit: BoxFit.none,
-              alignment: Alignment.topLeft,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: topPadding),
-            child: SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
+    return Padding(
+      padding: EdgeInsets.only(top: topPadding),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                  onPressed: (){
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => MenuPrincipal()),
+                      );
+                    }
+                  },
+                ),
+              ),
+              Image.asset('assets/images/logo_trasca.png', height: 100),
+              const SizedBox(height: 24),
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                color: Colors.white,
+                child: Padding(
                   padding: EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      Image.asset('assets/images/logo_trasca.png', height: 100),
-                      const SizedBox(height: 24),
-                      Card(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        color: Colors.white,
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Consulta tu saldo',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFD84315),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              const Text('Ingresa o escanea el número de tu tarjeta'),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _ctr,
-                                decoration: InputDecoration(
-                                  hintText: 'Número de tarjeta',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly, // <-- Esto permite solo números
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              ElevatedButton(
-                                onPressed: _scan,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF4AC5EA),
-                                  shape: StadiumBorder(),
-                                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                                ),
-                                child: Text('Escanear código'),
-                              ),
-                              const SizedBox(height: 12),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (_ctr.text.isEmpty) {
-                                    _showError();
-                                  } else {
-                                    setState(() => _mostrarSaldo = true);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFFF6F00),
-                                  shape: StadiumBorder(),
-                                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                                ),
-                                child: Text('Consultar'),
-                              ),
-                            ],
-                          ),
+                      Text(
+                        'Consulta tu saldo',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFD84315),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      if (_mostrarSaldo)
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFE3600F),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                          margin: EdgeInsets.only(top: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/images/logo_trasca.png',
-                                    height: 40,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'Saldo disponible',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$12.350',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => RecargaPage()),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white.withOpacity(0.2),
-                                    foregroundColor: Colors.white,
-                                    shape: StadiumBorder(),
-                                    padding: EdgeInsets.symmetric(vertical: 14),
-                                    elevation: 0,
-                                  ),
-                                  child: Text('Recargar'),
-                                ),
-                              ),
-                            ],
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Ingresa o escanea el número de tu tarjeta',
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _ctr,
+                        decoration: InputDecoration(
+                          hintText: 'Número de tarjeta',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _scan,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF4AC5EA),
+                              shape: StadiumBorder(),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 32, vertical: 14),
+                            ),
+                            child: Text('Escanear'),
+                          ),
+                          ElevatedButton(
+                            onPressed: _loading ? null : () {
+                              final value = _ctr.text.trim();
+
+                              // Expresión regular: uno o más dígitos
+                              final soloDigitos = RegExp(r'^\d+$');
+
+                              if (value.isEmpty || !soloDigitos.hasMatch(value)) {
+                                setState(() => _error = 'Ingresa un número de tarjeta válido');
+                                return;
+                              }
+                              _consultar();   // solo se llama si pasa la validación
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFFF6F00),
+                              shape: StadiumBorder(),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 32, vertical: 14),
+                            ),
+                            child: _loading
+                                ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : Text('Consultar'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 24),
+              if (_error != null)
+                Text(_error!,
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
+              if (_saldo != null)
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFE3600F),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding:
+                  EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  margin: EdgeInsets.only(top: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/logo_trasca.png',
+                            height: 40,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Saldo disponible',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '\$$_saldo',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => RecargaPage()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                            Colors.white.withOpacity(0.2),
+                            foregroundColor: Colors.white,
+                            shape: StadiumBorder(),
+                            padding:
+                            EdgeInsets.symmetric(vertical: 14),
+                            elevation: 0,
+                          ),
+                          child: Text('Recargar'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
 
 class ScannerPage extends StatelessWidget {
   final MobileScannerController controller = MobileScannerController();
@@ -429,7 +494,6 @@ class ScannerPage extends StatelessWidget {
     );
   }
 }
-
 
 
 class RecargaPage extends StatelessWidget {
@@ -719,3 +783,277 @@ class _RecargaPseInternaPageState extends State<RecargaPseInternaPage> {
 }
 
 
+class AjustesPage extends StatefulWidget {
+  @override
+  _AjustesPageState createState() => _AjustesPageState();
+}
+
+class _AjustesPageState extends State<AjustesPage> {
+  bool _notificaciones = true;
+  String _idioma = 'Español';
+  String _tema = 'Sistema';
+  final bool _logueado = false; // simula estado de sesión
+
+  @override
+  Widget build(BuildContext context) {
+    // Altura de la status bar
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    // Altura aproximada del header: paddings + altura de icon/text (≈24)
+    final headerHeight = statusBarHeight + 14 + 14 + 24;
+    // Queremos que el contenedor de login baje 16px desde el bottom curve
+    final loginOffset = headerHeight - 16;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          // Fondo de ondas
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/pattern.png',
+              repeat: ImageRepeat.repeat,
+              fit: BoxFit.none,
+              alignment: Alignment.topLeft,
+            ),
+          ),
+
+          // HEADER naranja, detrás de la status bar
+          Transform.translate(
+            offset: Offset(0, -statusBarHeight),
+            child: Container(
+              padding: EdgeInsets.only(
+                top: statusBarHeight + 14,
+                bottom: 14,
+                left: 16,
+                right: 16,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFF47216), Color(0xFFE3600F)],
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                children: [
+                  BackButton(color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Ajustes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Contenido principal
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Espacio dinámico para situar el login justo debajo de la curva
+                SizedBox(height: loginOffset),
+
+                // Contenedor de "Iniciar sesión"
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF007E8C),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: _logueado
+                      ? Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person,
+                            size: 28, color: Color(0xFF007E8C)),
+                      ),
+                      SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Michael',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold)),
+                          Text('michael@gmail.com',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 14)),
+                        ],
+                      ),
+                    ],
+                  )
+                      : Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: navegar a login
+                      },
+                      icon: Icon(Icons.login, color: Color(0xFF007E8C)),
+                      label: Text('Iniciar sesión',
+                          style: TextStyle(
+                              color: Color(0xFF007E8C),
+                              fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 24),
+                        elevation: 4,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Lista de opciones, con padding top para separarla del login
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Column(
+                      children: [
+                        _buildSwitchTile(
+                          icon: Icons.notifications,
+                          title: 'Notificaciones',
+                          value: _notificaciones,
+                          onChanged: (v) =>
+                              setState(() => _notificaciones = v),
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.language,
+                          title: 'Idioma',
+                          value: _idioma,
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.brightness_6,
+                          title: 'Tema',
+                          value: _tema,
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.privacy_tip,
+                          title: 'Privacidad',
+                          value: '',
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.lock,
+                          title: 'Seguridad',
+                          value: '',
+                          onTap: () {},
+                        ),
+                        _buildOptionTile(
+                          icon: Icons.help_outline,
+                          title: 'Centro de ayuda',
+                          value: '',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Logo pie
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/logo_trasca.png',
+                      height: 80,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required IconData icon,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Color(0xFF007E8C),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(title,
+                style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Color(0xFFE3600F),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionTile({
+    required IconData icon,
+    required String title,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Color(0xFF007E8C),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(title,
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+            if (value.isNotEmpty)
+              Text(value, style: TextStyle(color: Colors.white70)),
+            Icon(Icons.chevron_right, color: Colors.white70),
+          ],
+        ),
+      ),
+    );
+  }
+}
