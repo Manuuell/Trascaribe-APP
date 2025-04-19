@@ -241,6 +241,23 @@ class _ConsultaSaldoState extends State<ConsultaSaldo> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => MenuPrincipal()),
+              );
+            }
+          },
+        ),
+      ),
       body: Stack(
         children: [
           Positioned.fill(
